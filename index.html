@@ -1,0 +1,755 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sudoku literario</title>
+<style>
+body{margin:0;padding:16px;background:#f4efe6;box-sizing:border-box;font-family:Georgia,"Times New Roman",serif}
+#sudoku{max-width:760px;margin:0 auto;padding:22px;border:2px solid #9b7a4f;border-radius:18px;background:linear-gradient(180deg,#f8f1df 0%,#ead8b7 100%);color:#3e2d1f;box-shadow:0 10px 28px rgba(60,40,20,.18)}
+h2{text-align:center;margin:0 0 8px;color:#6f4f2c}.sub{text-align:center;margin:0 0 20px;color:#6b5a48;font-style:italic}
+#board{width:min(92vw,540px);aspect-ratio:1/1;margin:0 auto 18px auto;display:grid;grid-template-columns:repeat(9,1fr);grid-template-rows:repeat(9,1fr);border:3px solid #5b4229;background:#fffdf8;box-sizing:border-box}
+.cell{border:1px solid rgba(90,66,41,.28);display:flex;align-items:center;justify-content:center;font-size:1.4rem;font-weight:700;cursor:pointer;user-select:none;transition:background .15s,color .15s;box-sizing:border-box}
+.cell:nth-child(3n){border-right:2px solid #5b4229}.cell:nth-child(9n){border-right:none}.row-end{border-bottom:2px solid #5b4229!important}
+.cell.selected{background:#d7e7f7}.cell.related{background:#eef5fc}
+.cell.given{cursor:default}
+.cell.correct{background:#dceccf;color:#314728}
+.cell.error{background:#f1b6a8;color:#5c1f16}
+.cell.same-number{background:#f7edbd;}
+#pad{max-width:280px;margin:0 auto;display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+.pad-btn{border:1px solid #6f4f2c;background:linear-gradient(180deg,#fffdf8,#ece0c5);color:#3e2d1f;border-radius:12px;height:58px;font-size:1.5rem;font-weight:700;cursor:pointer;font-family:Georgia,"Times New Roman",serif}
+#status{margin-top:18px;padding:12px 14px;border-radius:12px;background:rgba(255,255,255,.45);border:1px solid rgba(90,66,41,.25);text-align:center;font-weight:700;min-height:24px}
+#stats{
+  margin-top:16px;
+  padding:14px;
+  border-radius:12px;
+  background:rgba(255,255,255,.45);
+  border:1px solid rgba(90,66,41,.25);
+  text-align:center;
+  line-height:1.5;
+}
+#reward{display:none;margin-top:18px;padding:16px;border-radius:14px;background:rgba(226,241,215,.88);border:1px solid rgba(124,156,105,.5);line-height:1.45;text-align:center}
+#rewardImageWrap{
+  margin-top:14px;
+  text-align:center;
+}
+#rewardImage{
+  max-width:260px;
+  width:100%;
+  border-radius:10px;
+  box-shadow:0 8px 18px rgba(0,0,0,.18);
+}
+.actions{margin-top:14px;display:flex;justify-content:center}
+.action-btn{border:1px solid #6f4f2c;background:linear-gradient(180deg,#a67b45,#7f5c34);color:#fff8e8;padding:9px 16px;border-radius:999px;font-family:Georgia,"Times New Roman",serif;font-weight:700;cursor:pointer}
+.levels{
+  display:flex;
+  justify-content:center;
+  gap:10px;
+  flex-wrap:wrap;
+  margin:0 0 18px;
+}
+
+.level-btn{
+  border:1px solid #6f4f2c;
+  background:linear-gradient(180deg,#a67b45,#7f5c34);
+  color:#fff8e8;
+  padding:8px 16px;
+  border-radius:999px;
+  font-family:Georgia,"Times New Roman",serif;
+  font-weight:700;
+  cursor:pointer;
+}
+
+ .volver-blog {
+  margin-top: 3rem;
+  text-align: center;
+}
+
+.volver-blog a {
+  font-family: Georgia, "Times New Roman", serif;
+  font-style: italic;
+  font-size: 1.1rem;
+  color: #5d3f1d;
+  text-decoration: none;
+  font-weight: bold;
+}
+
+.volver-blog a:hover {
+  text-decoration: underline;
+} 
+  
+@media(max-width:640px){body{padding:8px}#sudoku{padding:12px}#board{width:100%;max-width:520px}.cell{font-size:1.05rem}.pad-btn{height:52px;font-size:1.3rem}}
+</style>
+</head>
+<body>
+<div id="sudoku">
+<h2>Sudoku literario</h2>
+<p class="sub" id="subtitle">Elige un nivel de dificultad.</p>
+<div class="levels">
+  <button class="level-btn" data-level="easy" type="button">Fácil</button>
+  <button class="level-btn" data-level="medium" type="button">Medio</button>
+  <button class="level-btn" data-level="hard" type="button">Difícil</button>
+</div>
+<div id="gameWrap" style="display:none;">
+  <div id="board"></div>
+  <div id="pad"></div>
+</div>
+
+<div id="status">Selecciona una casilla vacía y luego un número.</div>
+
+<div id="stats" style="display:none;"></div>
+
+<div id="reward" style="display:none;">
+  <p id="rewardQuote"></p>
+  <p><em id="rewardAuthor"></em></p>
+
+  <div id="rewardImageWrap" style="display:none;">
+    <img id="rewardImage" src="" alt="Imagen de recompensa">
+  </div>
+</div>
+<div class="actions">
+  <button class="action-btn" id="resetBtn" type="button">Comenzar de nuevo</button>
+  <button class="action-btn" id="continueBtn" type="button" style="display:none;">Continuar</button>
+</div>
+</div>
+<script>
+(function(){
+var board=document.getElementById("board"),
+    pad=document.getElementById("pad"),
+    status=document.getElementById("status"),
+    reward=document.getElementById("reward"),
+    subtitle=document.getElementById("subtitle");
+var selected=null,values=[];
+var attempts=0;
+var correctAttempts=0;
+var STORAGE_KEY="sudoku_literario_progreso_v1";
+var ACTIVE_KEY="sudoku_literario_activo_v1";
+  
+var PUZZLES = {
+  easy: {
+    name: "Fácil",
+    variants: [
+      {
+        variant: 1,
+    puzzle: [
+      "609031250",
+      "003257000",
+      "725006400",
+      "504000683",
+      "300140729",
+      "970600005",
+      "430510000",
+      "807360000",
+      "001900064"
+    ],
+    solution: [
+      "689431257",
+      "143257896",
+      "725896431",
+      "514729683",
+      "368145729",
+      "972683145",
+      "436512978",
+      "897364512",
+      "251978364"
+    ],
+        reward: {
+          quote: "Despacito y buena letra: el hacer las cosas bien importa más que el hacerlas.",
+          author: "Antonio Machado, Campos de Castilla / Proverbios y Cantares",
+          image: "machado.jpeg"
+      }
+      },
+      {
+        variant: 2,
+    puzzle: [
+      "710000805",
+      "598201040",
+      "043009000",
+      "001006950",
+      "064030070",
+      "050180402",
+      "035008600",
+      "000012530",
+      "120543009"
+    ],
+    solution: [
+      "712364895",
+      "598271346",
+      "643859217",
+      "871426953",
+      "264935178",
+      "359187462",
+      "435798621",
+      "987612534",
+      "126543789"
+    ],
+        reward: {
+          quote: "La atención es la forma más rara y pura de generosidad.",
+          author: "Simone Weil",
+          image: "simonweil.jpeg"
+        }
+      }
+    ]
+  },
+
+  medium: {
+    name: "Medio",
+    variants: [
+      {
+        variant: 1,
+    puzzle: [
+      "000820471",
+      "001630209",
+      "000000300",
+      "538090046",
+      "000006030",
+      "100000920",
+      "850004010",
+      "010002004",
+      "000063852"
+    ],
+    solution: [
+      "365829471",
+      "471635289",
+      "289741365",
+      "538297146",
+      "927416538",
+      "146358927",
+      "852974613",
+      "613582794",
+      "794163852"
+    ],
+        reward: {
+          quote: "El mundo está lleno de cosas evidentes que nadie observa jamás.",
+          author: "Arthur Conan Doyle",
+          image: "holmes.jpeg"
+      }
+      },
+      {
+        variant: 2,
+    puzzle: [
+      "170000329",
+      "300700040",
+      "084000000",
+      "900070806",
+      "703601904",
+      "001000730",
+      "008520000",
+      "050007401",
+      "600000200"
+    ],
+    solution: [
+      "176854329",
+      "392716548",
+      "584932167",
+      "945273816",
+      "723681954",
+      "861495732",
+      "418529673",
+      "259367481",
+      "637148295"
+    ],
+        reward: {
+          quote: "Me maravillo de lo que he conseguido no ver.",
+          author: "Fernando Pessoa",
+          image: "pessoa.jpeg"
+        }
+      }
+    ]
+  },
+
+  hard: {
+    name: "Difícil",
+    variants: [
+      {
+        variant: 1,
+    puzzle: [
+      "970500023",
+      "001000000",
+      "000030470",
+      "218000005",
+      "060100307",
+      "000000800",
+      "097010200",
+      "002000581",
+      "000002006"
+    ],
+    solution: [
+      "974586123",
+      "321794658",
+      "856231479",
+      "218473965",
+      "569128347",
+      "743659812",
+      "697815234",
+      "432967581",
+      "185342796"
+    ],
+        reward: {
+          quote: "La verdad es que nunca he entendido muy bien lo que pasa, pero procuro no perderme detalle.",
+          author: "Quino",
+          image: "mafalda.jpeg"
+        }
+      },
+      {
+          variant: 2,
+    puzzle: [
+      "000000057",
+      "390050600",
+      "400020300",
+      "031095006",
+      "000000000",
+      "000070803",
+      "000061900",
+      "903200008",
+      "080000700"
+    ],
+    solution: [
+      "612983457",
+      "398754621",
+      "475126389",
+      "831495276",
+      "267318594",
+      "549672813",
+      "724861935",
+      "953247168",
+      "186539742"
+    ],
+        reward: {
+          quote: "A partir de cierto punto no hay retorno. Ese es el punto que hay que alcanzar.",
+          author: "Franz Kafka",
+          image: "kafka.jpeg"
+        }
+      }
+    ]
+  }
+};
+
+var currentLevel = "easy";
+var currentVariant = 0;
+
+var puzzle = PUZZLES[currentLevel].variants[currentVariant].puzzle;
+var solution = PUZZLES[currentLevel].variants[currentVariant].solution;
+
+function progressKey(){
+  return currentLevel + "_" + (currentVariant + 1);
+}
+
+function loadAllProgress(){
+  try{
+    var raw = localStorage.getItem(STORAGE_KEY);
+    if(!raw) return {};
+    var data = JSON.parse(raw);
+    return data || {};
+  }catch(e){
+    return {};
+  }
+}
+
+function saveCurrentProgress(){
+  var all = loadAllProgress();
+
+  all[progressKey()] = {
+  values: values,
+  completed: isComplete(),
+  attempts: attempts,
+  correctAttempts: correctAttempts
+};
+
+  try{
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(all));
+  }catch(e){}
+}
+
+function loadCurrentProgress(){
+  var all = loadAllProgress();
+  return all[progressKey()] || null;
+}
+
+function clearCurrentProgress(){
+  var all = loadAllProgress();
+  delete all[progressKey()];
+
+  try{
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(all));
+  }catch(e){}
+}
+
+function buildBoard(){
+  var html="",r,c,extra,n;
+  values=[];
+  selected=null;
+  attempts = 0;
+  correctAttempts = 0;
+  reward.style.display="none";
+  document.getElementById("continueBtn").style.display="none";
+  status.textContent="Selecciona una casilla vacía y luego un número.";
+  document.getElementById("stats").style.display="none";
+  pad.style.display="grid";
+  for(r=0;r<9;r++){
+    values[r]=[];
+    for(c=0;c<9;c++){
+      n=puzzle[r].charAt(c);
+      values[r][c]=n==="0"?"":n;
+      extra="";
+      if(r===2||r===5){extra+=" row-end";}
+      if(n!=="0"){extra+=" given";}
+      html+='<div class="cell'+extra+'" data-r="'+r+'" data-c="'+c+'">'+(n==="0"?"":n)+'</div>';
+    }
+  }
+
+  board.innerHTML=html;
+
+  var saved = loadCurrentProgress();
+
+  if(saved && saved.values){
+
+  attempts = saved.attempts || 0;
+  correctAttempts = saved.correctAttempts || 0;
+
+  values = saved.values;
+
+  for(var rr=0; rr<9; rr++){
+    for(var cc=0; cc<9; cc++){
+      if(values[rr][cc] !== ""){
+        var savedCell = document.querySelector('.cell[data-r="'+rr+'"][data-c="'+cc+'"]');
+        if(savedCell){
+          savedCell.textContent = values[rr][cc];
+        }
+      }
+    }
+  }
+
+    if(saved.completed){
+
+      var percent = Math.round((correctAttempts / attempts) * 100);
+      var errors = attempts - correctAttempts;
+
+      var label = "";
+      if(percent === 100){
+        label = "¡Excelente!";
+      }else if(percent >= 95){
+        label = "¡Muy bien!";
+      }else if(percent >= 85){
+        label = "Bastante bien.";
+      }else if(percent >= 75){
+        label = "No está mal.";
+      }else{
+        label = "Puedes hacerlo mejor.";
+      }
+
+      subtitle.textContent =
+        "Nivel " +
+        PUZZLES[currentLevel].name.toLowerCase() +
+        " (" + (currentVariant + 1) + ")";
+      
+      status.textContent = label + " Has completado el sudoku.";
+
+      document.getElementById("stats").innerHTML =
+        "<strong>Intentos:</strong> " + attempts + "<br>" +
+        "<strong>Aciertos:</strong> " + correctAttempts +
+        " (" + percent + "%)<br>" +
+        "<strong>Errores:</strong> " + errors;
+
+      document.getElementById("stats").style.display = "block";
+
+      pad.style.display = "none";
+
+      showReward();
+
+      if(currentVariant === 0){
+        document.getElementById("continueBtn").style.display = "inline-block";
+      }
+    }
+  }
+
+  clearHighlights();
+}
+
+function buildPad(){
+var html="",i;
+for(i=1;i<=9;i++){html+='<button class="pad-btn" data-n="'+i+'">'+i+'</button>';}
+pad.innerHTML=html;
+}
+
+function handleNumber(n){
+  if(!selected) return;
+
+  var r=selected.r;
+  var c=selected.c;
+  var cell=document.querySelector('.cell[data-r="'+r+'"][data-c="'+c+'"]');
+  if(!cell) return;
+  attempts++;
+  if(n===solution[r].charAt(c)){
+    values[r][c]=n;
+    correctAttempts++;
+    cell.textContent=n;
+    saveCurrentProgress();
+    flashCell(cell,"correct",1200);
+    status.textContent="Correcto.";
+    selected=null;
+    clearHighlights();
+
+  if(isComplete()){
+
+    var percent = Math.round((correctAttempts / attempts) * 100);
+    var errors = attempts - correctAttempts;
+
+    var label = "";
+
+    if(percent === 100){
+      label = "¡Excelente!";
+    }else if(percent > 90){
+      label = "¡Muy bien!";
+    }else if(percent >= 80){
+      label = "Bastante bien.";
+    }else if(percent >= 70){
+      label = "No está mal.";
+    }else{
+      label = "Puedes hacerlo mejor.";
+    }
+    
+    subtitle.textContent =
+      "Nivel " +
+      PUZZLES[currentLevel].name.toLowerCase() +
+      " (" + (currentVariant + 1) + ")";
+    
+    status.textContent = label + " Has completado el sudoku.";
+
+    document.getElementById("stats").innerHTML =
+      "<strong>Intentos:</strong> " + attempts + "<br>" +
+      "<strong>Aciertos:</strong> " + correctAttempts +
+      " (" + percent + "%)<br>" +
+      "<strong>Errores:</strong> " + errors;
+
+    document.getElementById("stats").style.display = "block";
+
+    pad.style.display="none";
+
+    showReward();
+
+    if(currentVariant===0){
+      document.getElementById("continueBtn").style.display="inline-block";
+    }
+  }
+  }else{
+    cell.textContent=n;
+    flashCell(cell,"error",1200);
+    status.textContent="Ese número no corresponde a la casilla.";
+
+    saveCurrentProgress();
+    
+    setTimeout(function(){
+      if(values[r][c]===""){cell.textContent="";}
+    },1200);
+  }
+}
+
+function saveActiveVariant(){
+  try{
+    localStorage.setItem(
+      ACTIVE_KEY + "_" + currentLevel,
+      String(currentVariant)
+    );
+  }catch(e){}
+}
+
+function loadActiveVariant(level){
+  try{
+    var saved = localStorage.getItem(ACTIVE_KEY + "_" + level);
+
+    if(saved === null) return 0;
+
+    return parseInt(saved,10) || 0;
+
+  }catch(e){
+    return 0;
+  }
+}
+  
+function loadLevel(level){
+  currentLevel = level;
+
+  currentVariant = loadActiveVariant(level);
+
+  puzzle = PUZZLES[currentLevel].variants[currentVariant].puzzle;
+  solution = PUZZLES[currentLevel].variants[currentVariant].solution;
+  
+  subtitle.textContent =
+    "Nivel " +
+    PUZZLES[currentLevel].name.toLowerCase() +
+    " (" + (currentVariant + 1) + ") · Selecciona una casilla y elige un número.";
+
+  document.getElementById("gameWrap").style.display = "block";
+
+  buildBoard();
+}
+
+function clearHighlights(){
+var cells=document.querySelectorAll(".cell"),i;
+for(i=0;i<cells.length;i++){
+cells[i].classList.remove("selected");
+cells[i].classList.remove("related");
+cells[i].classList.remove("same-number");
+}
+}
+
+function highlight(r,c){
+clearHighlights();
+var cells=document.querySelectorAll(".cell"),i,cell,rr,cc,sameRow,sameCol,sameBox;
+for(i=0;i<cells.length;i++){
+cell=cells[i];
+rr=parseInt(cell.getAttribute("data-r"),10);
+cc=parseInt(cell.getAttribute("data-c"),10);
+sameRow=rr===r;
+sameCol=cc===c;
+sameBox=Math.floor(rr/3)===Math.floor(r/3)&&Math.floor(cc/3)===Math.floor(c/3);
+if(sameRow||sameCol||sameBox){cell.classList.add("related");}
+if(rr===r&&cc===c){cell.classList.remove("related");cell.classList.add("selected");}
+}
+}
+
+function highlightSameNumber(n){
+  clearHighlights();
+
+  var cells=document.querySelectorAll(".cell");
+
+  for(var i=0;i<cells.length;i++){
+    if(cells[i].textContent === n){
+      cells[i].classList.add("same-number");
+    }
+  }
+
+  status.textContent = "Números " + n + " resaltados.";
+}
+function isGiven(r,c){
+return puzzle[r].charAt(c)!=="0";
+}
+
+function isComplete(){
+for(var r=0;r<9;r++){
+for(var c=0;c<9;c++){
+if(values[r][c]!==solution[r].charAt(c)) return false;
+}}
+return true;
+}
+
+function showReward(){
+  var data = PUZZLES[currentLevel].variants[currentVariant].reward;
+
+  document.getElementById("rewardQuote").textContent = data.quote || "";
+  document.getElementById("rewardAuthor").textContent = data.author || "";
+
+  if(data.image){
+    document.getElementById("rewardImage").src = data.image;
+    document.getElementById("rewardImageWrap").style.display = "block";
+  }else{
+    document.getElementById("rewardImage").src = "";
+    document.getElementById("rewardImageWrap").style.display = "none";
+  }
+
+  reward.style.display = "block";
+}
+function flashCell(cell,cls,ms){
+cell.classList.add(cls);
+setTimeout(function(){cell.classList.remove(cls);},ms);
+}
+
+board.addEventListener("click",function(e){
+var cell=e.target.closest(".cell");if(!cell)return;
+var r=parseInt(cell.getAttribute("data-r"),10);
+var c=parseInt(cell.getAttribute("data-c"),10);
+if(values[r][c] !== ""){
+  selected = null;
+  highlightSameNumber(values[r][c]);
+  return;
+}
+selected={r:r,c:c};
+highlight(r,c);
+status.textContent="Selecciona un número.";
+});
+
+pad.addEventListener("click",function(e){
+  var btn=e.target.closest(".pad-btn");
+  if(!btn) return;
+  handleNumber(btn.getAttribute("data-n"));
+});
+document.addEventListener("keydown",function(e){
+  if(e.key>="1" && e.key<="9"){
+    handleNumber(e.key);
+  }
+});
+document.getElementById("resetBtn").onclick=function(){
+
+  var saved = loadCurrentProgress();
+
+if(saved && saved.completed && currentVariant === 1){
+  clearCurrentProgress(); // borra variante 2
+
+  currentVariant = 0;
+  saveActiveVariant();
+
+  puzzle = PUZZLES[currentLevel].variants[currentVariant].puzzle;
+  solution = PUZZLES[currentLevel].variants[currentVariant].solution;
+
+  clearCurrentProgress(); // borra variante 1
+
+  attempts = 0;
+  correctAttempts = 0;
+  document.getElementById("stats").style.display = "none";
+  pad.style.display = "grid";
+
+  subtitle.textContent =
+    "Nivel " +
+    PUZZLES[currentLevel].name.toLowerCase() +
+    " (1) · Selecciona una casilla y elige un número.";
+
+  buildBoard();
+}else{
+
+    clearCurrentProgress();
+    buildBoard();
+  }
+};
+
+var levelButtons = document.querySelectorAll(".level-btn");
+
+for(var i = 0; i < levelButtons.length; i++){
+  levelButtons[i].onclick = function(){
+    var level = this.getAttribute("data-level");
+
+    if(!PUZZLES[level]){
+      status.textContent = "Ese nivel todavía no está disponible.";
+      return;
+    }
+
+    loadLevel(level);
+  };
+}
+
+document.getElementById("continueBtn").onclick=function(){
+  currentVariant = 1;
+  saveActiveVariant();
+  puzzle = PUZZLES[currentLevel].variants[currentVariant].puzzle;
+  solution = PUZZLES[currentLevel].variants[currentVariant].solution;
+
+  subtitle.textContent =
+    "Nivel " +
+    PUZZLES[currentLevel].name.toLowerCase() +
+    " (2) · Selecciona una casilla y elige un número.";
+
+  buildBoard();
+};
+  
+buildPad();
+})();
+</script>
+
+  <p class="volver-blog">
+  <a href="https://marpetges.sloweb.es/2026/05/19/sudoku-literario/">
+    Markus, Petrus, Gesus – Blog
+  </a>
+</p>
+  
+</body>
+</html>
