@@ -39,6 +39,20 @@ h2{text-align:center;margin:0 0 8px;color:#6f4f2c}.sub{text-align:center;margin:
   border-radius:10px;
   box-shadow:0 8px 18px rgba(0,0,0,.18);
 }
+#rewardTitle{
+  margin:12px 0 10px;
+  color:#6f4f2c;
+  text-align:center;
+}
+
+#rewardText{
+  text-align:left;
+  line-height:1.55;
+}
+
+#rewardText p{
+  margin:0 0 12px;
+}
 .actions{margin-top:14px;display:flex;justify-content:center}
 .action-btn{border:1px solid #6f4f2c;background:linear-gradient(180deg,#a67b45,#7f5c34);color:#fff8e8;padding:9px 16px;border-radius:999px;font-family:Georgia,"Times New Roman",serif;font-weight:700;cursor:pointer}
 .levels{
@@ -100,13 +114,15 @@ h2{text-align:center;margin:0 0 8px;color:#6f4f2c}.sub{text-align:center;margin:
 <div id="stats" style="display:none;"></div>
 
 <div id="reward" style="display:none;">
-  <p id="rewardQuote"></p>
-  <p><em id="rewardAuthor"></em></p>
-
   <div id="rewardImageWrap" style="display:none;">
-    <img id="rewardImage" src="" alt="Imagen de recompensa">
+    <img id="rewardImage" src="" alt="Imagen del relato">
   </div>
+
+  <h3 id="rewardTitle"></h3>
+
+  <div id="rewardText"></div>
 </div>
+  
 <div class="actions">
   <button class="action-btn" id="resetBtn" type="button">Comenzar de nuevo</button>
   <button class="action-btn" id="continueBtn" type="button" style="display:none;">Continuar</button>
@@ -154,10 +170,10 @@ var PUZZLES = {
       "621849375"
     ],
         reward: {
-          quote: "Despacito y buena letra: el hacer las cosas bien importa más que el hacerlas.",
-          author: "Antonio Machado, Campos de Castilla / Proverbios y Cantares",
-          image: "machado.jpeg"
-      }
+          title: "Los amigos",
+          text: "<p>Hacía muchísimo tiempo que no se veían...</p><p>Al terminar, se despidieron y ya no se volvieron a ver nunca más.</p>",
+          image: null
+}
       },
       {
         variant: 2,
@@ -637,8 +653,8 @@ return true;
 function showReward(){
   var data = PUZZLES[currentLevel].variants[currentVariant].reward;
 
-  document.getElementById("rewardQuote").textContent = data.quote || "";
-  document.getElementById("rewardAuthor").textContent = data.author || "";
+  document.getElementById("rewardTitle").textContent = data.title || "";
+  document.getElementById("rewardText").innerHTML = data.text || "";
 
   if(data.image){
     document.getElementById("rewardImage").src = data.image;
@@ -650,6 +666,7 @@ function showReward(){
 
   reward.style.display = "block";
 }
+  
 function flashCell(cell,cls,ms){
 cell.classList.add(cls);
 setTimeout(function(){cell.classList.remove(cls);},ms);
