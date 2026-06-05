@@ -779,8 +779,17 @@ document.getElementById("continueBtn").onclick=function(){
 };
 
 document.getElementById("backToSudokuBtn").onclick=function(){
+
   document.getElementById("gameWrap").style.display = "block";
   reward.style.display = "none";
+
+  document.getElementById("backToSudokuBtn").style.display = "none";
+
+  document.getElementById("resetBtn").style.display = "inline-block";
+
+  if(currentVariant === 0){
+    document.getElementById("continueBtn").style.display = "inline-block";
+  }
 };
   
 buildPad();
