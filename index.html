@@ -121,6 +121,10 @@ h2{text-align:center;margin:0 0 8px;color:#6f4f2c}.sub{text-align:center;margin:
   <h3 id="rewardTitle"></h3>
 
   <div id="rewardText"></div>
+
+  <div class="actions">
+    <button class="action-btn" id="backToSudokuBtn" type="button">Volver al sudoku</button>
+  </div>
 </div>
   
 <div class="actions">
@@ -471,6 +475,8 @@ function buildBoard(){
 
       pad.style.display = "none";
 
+      document.getElementById("gameWrap").style.display = "none";
+
       showReward();
 
       if(currentVariant === 0){
@@ -542,6 +548,8 @@ function handleNumber(n){
 
     pad.style.display="none";
 
+    document.getElementById("gameWrap").style.display = "none";
+    
     showReward();
 
     if(currentVariant===0){
@@ -756,6 +764,11 @@ document.getElementById("continueBtn").onclick=function(){
     " (2) · Selecciona una casilla y elige un número.";
 
   buildBoard();
+};
+
+document.getElementById("backToSudokuBtn").onclick=function(){
+  document.getElementById("gameWrap").style.display = "block";
+  reward.style.display = "none";
 };
   
 buildPad();
