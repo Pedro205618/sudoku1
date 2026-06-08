@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Colección de relatos</title>
+
+<style>
+body{
+  margin:0;
+  padding:16px;
+  background:#f4efe6;
+  font-family:Georgia,"Times New Roman",serif;
+  color:#3e2d1f;
+}
+
+#coleccion{
+  max-width:720px;
+  margin:0 auto;
+  padding:22px;
+  border:2px solid #9b7a4f;
+  border-radius:18px;
+  background:linear-gradient(180deg,#f8f1df 0%,#ead8b7 100%);
+  box-shadow:0 10px 28px rgba(60,40,20,.18);
+}
+
+h1{
+  text-align:center;
+  color:#6f4f2c;
+  margin:0 0 10px;
+}
+
+.sub{
+  text-align:center;
+  font-style:italic;
+  color:#6b5a48;
+  margin-bottom:24px;
+}
+
+.story-list{
+  display:flex;
+  flex-direction:column;
+  gap:12px;
+}
+
+.story-item{
+  padding:12px 14px;
+  border-radius:12px;
+  background:rgba(255,255,255,.45);
+  border:1px solid rgba(90,66,41,.25);
+}
+
+.story-item a{
+  color:#5b4229;
+  font-weight:700;
+  text-decoration:none;
+}
+
+.story-item a:hover{
+  text-decoration:underline;
+}
+
+.locked{
+  color:#8a7a67;
+  font-style:italic;
+}
+
+.back{
+  text-align:center;
+  margin-top:24px;
+}
+
+.back a{
+  color:#6f4f2c;
+  font-style:italic;
+  text-decoration:none;
+}
+
+.back a:hover{
+  text-decoration:underline;
+}
+</style>
+</head>
+
+<body>
+<div id="coleccion">
+  <h1>Colección de relatos</h1>
+
+  <div class="sub" id="counter"></div>
+
+  <div class="story-list" id="storyList"></div>
+
+  <div class="back">
+    <a href="index.html">Volver al sudoku</a>
+  </div>
+</div>
+
+<script>
+(function(){
+
+  var STORAGE_KEY = "sudoku_literario_progreso_v1";
+
+  var STORIES = [
+    { id:"easy_1", title:"Los amigos", file:"los-amigos.html" },
+    { id:"easy_2", title:"La llave", file:"la-llave.html" },
+    { id:"medium_1", title:"El fantasma", file:"el-fantasma.html" },
+    { id:"medium_2", title:"El hermano", file:"el-hermano.html" },
+    { id:"hard_1", title:"El crucero", file:"el-crucero.html" },
+    { id:"hard_2", title:"El profesor", file:"el-profesor.html" }
+  ];
+
+  function loadProgress(){
+    try{
+      var raw = localStorage.getItem(STORAGE_KEY);
+      if(!raw) return {};
+      return JSON.parse(raw) || {};
+    }catch(e){
+      return {};
+    }
+  }
+
+  function render(){
+    var progress = loadProgress();
+    var discovered = 0;
+    var html = "";
+
+    for(var i=0; i<STORIES.length; i++){
+      var story = STORIES[i];
+      var unlocked = progress[story.id] && progress[story.id].completed;
+
+      if(unlocked){
+        discovered++;
+        html += '<div class="story-item">✓ <a href="' + story.file + '">' +
+                story.title +
+                '</a></div>';
+      }else{
+        html += '<div class="story-item locked">🔒 Relato por descubrir</div>';
+      }
+    }
+
+    document.getElementById("counter").textContent =
+      "Has descubierto " + discovered + " de " + STORIES.length + " relatos.";
+
+    document.getElementById("storyList").innerHTML = html;
+  }
+
+  render();
+
+})();
+</script>
+</body>
+</html>
