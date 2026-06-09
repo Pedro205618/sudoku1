@@ -90,7 +90,22 @@ h2{text-align:center;margin:0 0 8px;color:#6f4f2c}.sub{text-align:center;margin:
 
 .volver-blog a:hover {
   text-decoration: underline;
-} 
+}
+
+.collection-link{
+  text-align:center;
+  margin-top:12px;
+}
+
+#storiesLink{
+  color:#f4efe6;
+  font-style:italic;
+  text-decoration:none;
+}
+
+#storiesLink:hover{
+  text-decoration:underline;
+}
   
 @media(max-width:640px){body{padding:8px}#sudoku{padding:12px}#board{width:100%;max-width:520px}.cell{font-size:1.05rem}.pad-btn{height:52px;font-size:1.3rem}}
 </style>
@@ -139,9 +154,15 @@ h2{text-align:center;margin:0 0 8px;color:#6f4f2c}.sub{text-align:center;margin:
           style="display:none;">
     Volver al sudoku
   </button>
+</div>
+
+<div class="collection-link">
+  <a href="coleccion-relatos.html" id="storiesLink">
+    Ver la colección de relatos
+  </a>
+</div>
+</div>
   
-</div>
-</div>
 <script>
 (function(){
 var board=document.getElementById("board"),
