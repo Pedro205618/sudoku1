@@ -98,7 +98,7 @@ h1{
 <script>
 (function(){
 
-  var STORAGE_KEY = "sudoku_literario_progreso_v2";
+  var STORIES_KEY = "sudoku_literario_relatos_v1";
 
   var STORIES = [
     { id:"easy_1", title:"Los amigos", file:"los-amigos.html" },
@@ -109,9 +109,9 @@ h1{
     { id:"hard_2", title:"El profesor", file:"el-profesor.html" }
   ];
 
-  function loadProgress(){
+  function loadUnlockedStories(){
     try{
-      var raw = localStorage.getItem(STORAGE_KEY);
+      var raw = localStorage.getItem(STORIES_KEY);
       if(!raw) return {};
       return JSON.parse(raw) || {};
     }catch(e){
@@ -120,13 +120,13 @@ h1{
   }
 
   function render(){
-    var progress = loadProgress();
+    var unlockedStories = loadUnlockedStories();
     var discovered = 0;
     var html = "";
 
     for(var i=0; i<STORIES.length; i++){
       var story = STORIES[i];
-      var unlocked = progress[story.id] && progress[story.id].completed;
+      var unlocked = unlockedStories[story.id];
 
       if(unlocked){
         discovered++;
