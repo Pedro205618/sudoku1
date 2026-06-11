@@ -120,6 +120,19 @@ h1{
 .extra-link a:hover{
   text-decoration:underline;
 }
+
+.experiments{
+  text-align:center;
+  margin-top:24px;
+  padding-top:18px;
+  border-top:1px solid rgba(90,66,41,.25);
+}
+
+.experiments-title{
+  margin-bottom:10px;
+  font-style:italic;
+  color:#6f4f2c;
+}
   
 </style>
 </head>
@@ -196,8 +209,12 @@ function renderAIGame(allDiscovered){
 
   if(hasReadSecret()){
     box.innerHTML =
-      '<p><strong>Experimentos literarios</strong></p>' +
-      '<div class="extra-link"><a href="el-juego-de-la-ia.html">El juego de la IA</a></div>';
+  '<div class="experiments">' +
+      '<p class="experiments-title">Experimentos literarios</p>' +
+      '<div class="extra-link">' +
+        '<a href="el-juego-de-la-ia.html">El juego de la IA</a>' +
+      '</div>' +
+    '</div>';
   }else{
     box.innerHTML =
       '<p><strong>Tu respuesta ha quedado registrada.</strong></p>' +
