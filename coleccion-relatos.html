@@ -145,15 +145,17 @@ h1{
   var STORIES_KEY = "sudoku_literario_relatos_v1";
   var GUESS_KEY = "sudoku_literario_eleccion_ia_v1";
   var EXTRA_STORY_KEY = "sudoku_literario_relato_extra_v1";
+  var SECRET_READ_KEY = "sudoku_literario_el_secreto_leido_v1";
 
   var STORIES = [
-    { id:"easy_1", title:"Los amigos", file:"los-amigos.html" },
-    { id:"easy_2", title:"La llave", file:"la-llave.html" },
-    { id:"medium_1", title:"El fantasma", file:"el-fantasma.html" },
-    { id:"medium_2", title:"El hermano", file:"el-hermano.html" },
-    { id:"hard_1", title:"El crucero", file:"el-crucero.html" },
-    { id:"hard_2", title:"El profesor", file:"el-profesor.html" }
-  ];
+  { id:"easy_1", title:"Los amigos", file:"los-amigos.html" },
+  { id:"easy_2", title:"La llave", file:"la-llave.html" },
+  { id:"medium_1", title:"El fantasma", file:"el-fantasma.html" },
+  { id:"medium_2", title:"El hermano", file:"el-hermano.html" },
+  { id:"hard_1", title:"El crucero", file:"el-crucero.html" },
+  { id:"hard_2", title:"El profesor", file:"el-profesor.html" },
+  { id:"secret_1", title:"El secreto", file:"el-secreto.html", secret:true }
+];
 
   function loadUnlockedStories(){
     try{
@@ -244,6 +246,14 @@ function renderAIGame(allDiscovered){
     renderAIGame(true);
   };
 }
+
+  function hasReadSecret(){
+    try{
+      return localStorage.getItem(SECRET_READ_KEY) === "true";
+    }catch(e){
+      return false;
+    }
+  }
   
   function render(){
     var unlockedStories = loadUnlockedStories();
@@ -252,6 +262,9 @@ function renderAIGame(allDiscovered){
 
     for(var i=0; i<STORIES.length; i++){
       var story = STORIES[i];
+      if(story.secret && !hasReadSecret()){
+        continue;
+    }
       var unlocked = unlockedStories[story.id];
 
       if(unlocked){
@@ -265,7 +278,10 @@ function renderAIGame(allDiscovered){
     }
 
     document.getElementById("counter").textContent =
-      "Has descubierto " + discovered + " de " + STORIES.length + " relatos.";
+      var totalVisible = hasReadSecret() ? STORIES.length : STORIES.length - 1;
+
+      document.getElementById("counter").textContent =
+        "Has descubierto " + discovered + " de " + totalVisible + " relatos.";
 
     document.getElementById("storyList").innerHTML = html;
 
