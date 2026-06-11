@@ -79,6 +79,48 @@ h1{
 .back a:hover{
   text-decoration:underline;
 }
+
+#aiGame{
+  margin-top:24px;
+  padding:16px;
+  border-radius:14px;
+  background:rgba(255,255,255,.45);
+  border:1px solid rgba(90,66,41,.25);
+  line-height:1.5;
+}
+
+.ai-option{
+  display:block;
+  margin:8px 0;
+}
+
+.ai-btn{
+  margin-top:12px;
+  border:1px solid #6f4f2c;
+  background:linear-gradient(180deg,#a67b45,#7f5c34);
+  color:#fff8e8;
+  padding:8px 16px;
+  border-radius:999px;
+  font-family:Georgia,"Times New Roman",serif;
+  font-weight:700;
+  cursor:pointer;
+}
+
+.extra-link{
+  margin-top:14px;
+  text-align:center;
+}
+
+.extra-link a{
+  color:#6f4f2c;
+  font-style:italic;
+  text-decoration:none;
+}
+
+.extra-link a:hover{
+  text-decoration:underline;
+}
+  
 </style>
 </head>
 
@@ -90,6 +132,8 @@ h1{
 
   <div class="story-list" id="storyList"></div>
 
+  <div id="aiGame" style="display:none;"></div>
+
   <div class="back">
     <a href="index.html">Volver al sudoku</a>
   </div>
@@ -99,6 +143,8 @@ h1{
 (function(){
 
   var STORIES_KEY = "sudoku_literario_relatos_v1";
+  var GUESS_KEY = "sudoku_literario_eleccion_ia_v1";
+  var EXTRA_STORY_KEY = "sudoku_literario_relato_extra_v1";
 
   var STORIES = [
     { id:"easy_1", title:"Los amigos", file:"los-amigos.html" },
@@ -119,6 +165,80 @@ h1{
     }
   }
 
+function saveGuess(value){
+  try{
+    localStorage.setItem(GUESS_KEY, value);
+    localStorage.setItem(EXTRA_STORY_KEY, "true");
+  }catch(e){}
+}
+
+function loadGuess(){
+  try{
+    return localStorage.getItem(GUESS_KEY);
+  }catch(e){
+    return null;
+  }
+}
+
+function renderAIGame(allDiscovered){
+  var box = document.getElementById("aiGame");
+
+  if(!allDiscovered){
+    box.style.display = "none";
+    return;
+  }
+
+  var guess = loadGuess();
+
+  if(guess){
+    var guessedTitle = "";
+
+    for(var i=0; i<STORIES.length; i++){
+      if(STORIES[i].id === guess){
+        guessedTitle = STORIES[i].title;
+      }
+    }
+
+    box.innerHTML =
+      '<p><strong>Tu respuesta ha quedado registrada.</strong></p>' +
+      '<p>Has elegido: <em>' + guessedTitle + '</em>.</p>' +
+      '<p>Lee este último relato y sabrás si has acertado.</p>' +
+      '<div class="extra-link"><a href="relato-extra.html">Leer el relato extra</a></div>';
+
+    box.style.display = "block";
+    return;
+  }
+
+  var html =
+    '<p><strong>Uno de estos relatos lo ha escrito una IA.</strong><br>' +
+    '¿Cuál crees que es?</p>';
+
+  for(var j=0; j<STORIES.length; j++){
+    html +=
+      '<label class="ai-option">' +
+      '<input type="radio" name="aiGuess" value="' + STORIES[j].id + '"> ' +
+      STORIES[j].title +
+      '</label>';
+  }
+
+  html += '<button class="ai-btn" id="submitGuessBtn" type="button">Enviar respuesta</button>';
+
+  box.innerHTML = html;
+  box.style.display = "block";
+
+  document.getElementById("submitGuessBtn").onclick=function(){
+    var selected = document.querySelector('input[name="aiGuess"]:checked');
+
+    if(!selected){
+      alert("Elige un relato antes de enviar tu respuesta.");
+      return;
+    }
+
+    saveGuess(selected.value);
+    renderAIGame(true);
+  };
+}
+  
   function render(){
     var unlockedStories = loadUnlockedStories();
     var discovered = 0;
@@ -142,6 +262,8 @@ h1{
       "Has descubierto " + discovered + " de " + STORIES.length + " relatos.";
 
     document.getElementById("storyList").innerHTML = html;
+
+    renderAIGame(discovered === STORIES.length);
   }
 
   render();
