@@ -538,6 +538,16 @@ function buildBoard(){
   clearHighlights();
 }
 
+function resetAll(){
+
+  localStorage.removeItem("sudoku_literario_progreso_v2");
+  localStorage.removeItem("sudoku_literario_relatos_v1");
+  localStorage.removeItem("sudoku_literario_eleccion_ia_v1");
+  localStorage.removeItem("sudoku_literario_el_secreto_leido_v1");
+
+  location.reload();
+}
+
 function buildPad(){
 var html="",i;
 for(i=1;i<=9;i++){html+='<button class="pad-btn" data-n="'+i+'">'+i+'</button>';}
@@ -839,6 +849,12 @@ buildPad();
   <p class="volver-blog">
   <a href="https://marpetges.sloweb.es/2026/05/19/sudoku-literario/">
     Markus, Petrus, Gesus – Blog
+  </a>
+</p>
+
+<p style="text-align:center;">
+  <a href="#" onclick="resetAll();return false;">
+    Reiniciar todo el juego
   </a>
 </p>
   
