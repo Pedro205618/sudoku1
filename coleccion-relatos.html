@@ -256,37 +256,44 @@ function renderAIGame(allDiscovered){
   }
   
   function render(){
-    var unlockedStories = loadUnlockedStories();
-    var discovered = 0;
-    var html = "";
+  var unlockedStories = loadUnlockedStories();
+  var discovered = 0;
+  var html = "";
+  var secretRead = hasReadSecret();
+  var totalVisible = secretRead ? STORIES.length : STORIES.length - 1;
 
-    for(var i=0; i<STORIES.length; i++){
-      var story = STORIES[i];
-      if(story.secret && !hasReadSecret()){
-        continue;
-    }
-      var unlocked = unlockedStories[story.id];
+  for(var i=0; i<STORIES.length; i++){
+    var story = STORIES[i];
 
-      if(unlocked){
-        discovered++;
-        html += '<div class="story-item">✓ <a href="' + story.file + '">' +
-                story.title +
-                '</a></div>';
-      }else{
-        html += '<div class="story-item locked">🔒 Relato por descubrir</div>';
-      }
+    if(story.secret && !secretRead){
+      continue;
     }
 
-    document.getElementById("counter").textContent =
-      var totalVisible = hasReadSecret() ? STORIES.length : STORIES.length - 1;
+    var unlocked;
 
-      document.getElementById("counter").textContent =
-        "Has descubierto " + discovered + " de " + totalVisible + " relatos.";
+    if(story.secret){
+      unlocked = secretRead;
+    }else{
+      unlocked = unlockedStories[story.id];
+    }
 
-    document.getElementById("storyList").innerHTML = html;
-
-    renderAIGame(discovered === STORIES.length);
+    if(unlocked){
+      discovered++;
+      html += '<div class="story-item">✓ <a href="' + story.file + '">' +
+              story.title +
+              '</a></div>';
+    }else{
+      html += '<div class="story-item locked">🔒 Relato por descubrir</div>';
+    }
   }
+
+  document.getElementById("counter").textContent =
+    "Has descubierto " + discovered + " de " + totalVisible + " relatos.";
+
+  document.getElementById("storyList").innerHTML = html;
+
+  renderAIGame(discovered >= 6);
+}
 
   render();
 
