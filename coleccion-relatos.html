@@ -193,29 +193,21 @@ function renderAIGame(allDiscovered){
   var guess = loadGuess();
 
   if(guess){
-    var guessedTitle = "";
 
-    for(var i=0; i<STORIES.length; i++){
-      if(STORIES[i].id === guess){
-        guessedTitle = STORIES[i].title;
-      }
-    }
-
-  var correctId = "easy_2"; // La llave
-  var correctTitle = "La llave";
-
-  box.innerHTML =
-    '<p><strong>Tu respuesta ha quedado registrada.</strong></p>' +
-    '<p>Has elegido: <em>' + guessedTitle + '</em>.</p>' +
-    '<p>Lee este último relato y sabrás si has acertado.</p>' +
-    '<div class="extra-link"><a href="el-secreto.html">Leer el relato extra</a></div>' +
-    '<hr style="margin:18px 0; border:none; border-top:1px solid rgba(90,66,41,.25);">' +
-    '<p><strong>El relato escrito por la IA era: <em>' + correctTitle + '</em>.</strong></p>' +
-    '<p>' + (guess === correctId ? 'Has acertado.' : 'No has acertado esta vez.') + '</p>';
+  if(hasReadSecret()){
+    box.innerHTML =
+      '<p><strong>Experimentos literarios</strong></p>' +
+      '<div class="extra-link"><a href="el-juego-de-la-ia.html">El juego de la IA</a></div>';
+  }else{
+    box.innerHTML =
+      '<p><strong>Tu respuesta ha quedado registrada.</strong></p>' +
+      '<p>Lee este último relato y sabrás si has acertado.</p>' +
+      '<div class="extra-link"><a href="el-secreto.html">Continuar...</a></div>';
+  }
 
   box.style.display = "block";
-    return;
-  }
+  return;
+}
 
   var html =
     '<p><strong>Uno de estos relatos lo ha escrito una IA.</strong><br>' +
