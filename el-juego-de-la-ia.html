@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>El juego de la IA</title>
+
+<style>
+body{
+  margin:0;
+  padding:20px;
+  background:#f4efe6;
+  font-family:Georgia,"Times New Roman",serif;
+  color:#3e2d1f;
+}
+
+.container{
+  max-width:780px;
+  margin:0 auto;
+  padding:22px;
+  border:2px solid #9b7a4f;
+  border-radius:18px;
+  background:linear-gradient(180deg,#f8f1df 0%,#ead8b7 100%);
+  box-shadow:0 10px 28px rgba(60,40,20,.18);
+}
+
+h1{
+  text-align:center;
+  color:#6f4f2c;
+  margin-top:0;
+}
+
+.section{
+  margin-bottom:20px;
+}
+
+.label{
+  font-weight:bold;
+  color:#6f4f2c;
+}
+
+#commentary{
+  margin-top:30px;
+  line-height:1.7;
+}
+
+#commentary h2{
+  text-align:center;
+  color:#6f4f2c;
+  font-size:1.2em;
+}
+
+.nav{
+  margin-top:30px;
+  text-align:center;
+}
+
+.nav a{
+  color:#6f4f2c;
+  text-decoration:none;
+  font-style:italic;
+}
+
+.nav a:hover{
+  text-decoration:underline;
+}
+</style>
+</head>
+
+<body>
+
+<div class="container">
+
+<h1>El juego de la IA</h1>
+
+<div class="section">
+  <div class="label">Tu elección:</div>
+  <div id="userChoice"></div>
+</div>
+
+<div class="section">
+  <div class="label">Relato escrito por la IA:</div>
+  <div>La llave</div>
+</div>
+
+<div class="section">
+  <div class="label">Resultado:</div>
+  <div id="result"></div>
+</div>
+
+<div id="commentary">
+
+<h2>Comentario</h2>
+
+<p>
+A menudo creemos que podemos reconocer fácilmente quién ha escrito un texto.
+Sin embargo, cuando leemos una historia solemos responder menos a su origen que a lo que despierta en nosotros.
+</p>
+
+<p>
+Este pequeño experimento no pretende demostrar nada. Solo recordar que la lectura es un encuentro entre un texto y un lector. Y que, a veces, las certezas iniciales merecen ser puestas a prueba.
+</p>
+
+</div>
+
+<div class="nav">
+  <a href="coleccion-relatos.html">Volver a la colección</a>
+</div>
+
+</div>
+
+<script>
+
+var titles = {
+  "easy_1":"Los amigos",
+  "easy_2":"La llave",
+  "medium_1":"El fantasma",
+  "medium_2":"El hermano",
+  "hard_1":"El crucero",
+  "hard_2":"El profesor"
+};
+
+var guess = localStorage.getItem("sudoku_literario_eleccion_ia_v1");
+
+document.getElementById("userChoice").textContent =
+  titles[guess] || "No consta respuesta.";
+
+if(guess === "easy_2"){
+  document.getElementById("result").textContent =
+    "Has acertado.";
+}else{
+  document.getElementById("result").textContent =
+    "No has acertado esta vez.";
+}
+
+</script>
+
+</body>
+</html>
