@@ -540,11 +540,9 @@ function buildBoard(){
 
 function resetAll(){
 
-  localStorage.removeItem("sudoku_literario_progreso_v2");
-  localStorage.removeItem("sudoku_literario_relatos_v1");
-  localStorage.removeItem("sudoku_literario_eleccion_ia_v1");
-  localStorage.removeItem("sudoku_literario_el_secreto_leido_v1");
-  localStorage.removeItem("sudoku_literario_relato_extra_v1");
+  localStorage.clear();
+
+  alert("Datos borrados");
 
   location.reload();
 }
