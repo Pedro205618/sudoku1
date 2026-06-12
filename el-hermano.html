@@ -63,7 +63,10 @@ h1{
 
 .nav{
   margin-top:26px;
-  text-align:center;
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  gap:10px;
 }
 
 .nav a{
@@ -96,11 +99,33 @@ h1{
     <img src="el_hermano.jpeg" alt="El hermano">
   </div>
 
-  <div class="nav">
-    <a href="coleccion-relatos.html">Volver a la colección</a>
-  </div>
+  <div id="storyNav" class="nav"></div>
 
 </div>
 
+<script>
+
+var secretRead =
+  localStorage.getItem("sudoku_literario_el_secreto_leido_v1") === "true";
+
+var nav = document.getElementById("storyNav");
+
+if(secretRead){
+
+  nav.innerHTML =
+    '<a href="el-fantasma.html">← Anterior</a>' +
+    '<a href="coleccion-relatos.html">Colección</a>' +
+    '<a href="el-crucero.html">Siguiente →</a>';
+
+}else{
+
+  nav.innerHTML =
+    '<span></span>' +
+    '<a href="coleccion-relatos.html">Colección</a>' +
+    '<span></span>';
+}
+
+</script>
+  
 </body>
 </html>
