@@ -123,38 +123,6 @@ if(secretRead){
     '<span></span>';
 }
 
-
-var touchStartX = 0;
-var touchStartY = 0;
-var touchEndX = 0;
-var touchEndY = 0;
-
-document.addEventListener("touchstart", function(e){
-  if(!secretRead) return;
-
-  touchStartX = e.changedTouches[0].screenX;
-  touchStartY = e.changedTouches[0].screenY;
-}, false);
-
-document.addEventListener("touchend", function(e){
-  if(!secretRead) return;
-
-  touchEndX = e.changedTouches[0].screenX;
-  touchEndY = e.changedTouches[0].screenY;
-
-  var diffX = touchEndX - touchStartX;
-  var diffY = touchEndY - touchStartY;
-
-  if(Math.abs(diffX) > 70 && Math.abs(diffX) > Math.abs(diffY) * 1.5){
-    if(diffX < 0){
-      window.location.href = "la-llave.html";
-    }else{
-      window.location.href = "el-secreto.html";
-    }
-  }
-}, false);
-
-
 </script>  
 
 </body>
